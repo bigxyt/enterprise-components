@@ -1,0 +1,9 @@
+[group]
+  #/C/ data source name. The actual server names are appended with _<instance number> Todo: maybe use a component?
+  # but is a clone collection recognized as a component?
+  #/E/ cfg.dataSource = core.hdb
+  cfg.dataSource = <type(SYMBOL)>
+[table]
+[sysTable]
+[user]
+[userGroup]
