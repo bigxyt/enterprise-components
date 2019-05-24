@@ -55,6 +55,26 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .log.warn[`mserv]"Connection to ",(string id)," has been closed";
   .mserv.h:(enlist .mserv.p.activeSources[id]) _ .mserv.h;
   };
+  
+/F/ The overwrite for .z.ps
+.mserv.p.ps:{
+  $[(w:neg .z.w)in key .mserv.h;
+    [.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
+    [.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x)]
+  ]
+  };
+
+
+/F/ The overwrite for .z.ps, the debug version that shows asynchronous queries on the console
+.mserv.p.psDbg:{
+  // DBG
+  show "query: ",.Q.s1 x;
+  $[(w:neg .z.w)in key .mserv.h;
+    [show "this is a server response";.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
+    [show "this is a client request";.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x);show "sent to handle ",(.Q.s1 a)," query ",.Q.s1 ("{(neg .z.w)@[value;x;`error]}";x);.dbg.lastQuery:("{(neg .z.w)@[value;x;`error]}";x)]
+  ]
+  };
+
 
 /==============================================================================/
 /F/ Main function for the mserve component.
@@ -71,12 +91,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .mserv.cfg.dataSources .hnd.poAdd\: `.mserv.p.sourcePo;
   .mserv.cfg.dataSources .hnd.pcAdd\: `.mserv.p.sourcePc;
   .hnd.hopen[.mserv.cfg.dataSources; 100i; `eager];
-  .z.ps:{
-    $[(w:neg .z.w)in key .mserv.h;
-      [.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
-      [.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x);show "sent to handle ",(.Q.s1 a)," query ",.Q.s1 ("{(neg .z.w)@[value;x;`error]}";x)]
-      ]
-    };
+  .z.ps:.mserv.p.ps;
   };
 /G/ Path to the actual hdb directory.
 /------------------------------------------------------------------------------/
