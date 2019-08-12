@@ -136,6 +136,25 @@
 /-/     - standard output of `core.rdb process should contain now 1 2 3
 .hnd.ah:{[s].hnd.status[s;`ashandle]};
 
+/F/ Provides a shortcut for opening a connection and running a query synchronously.
+/-/ It is similar to .hdn.h, except that it checks if a connection is open and opens it
+/-/ in `eager mode with default timeout 100i if it is not open already.
+/P/ s:SYMBOL - server logical name
+/R/ :FUNCTION[1] | INT - exectutable `item` that should be used to execute the query
+/E/ .hnd.oh[`core.rdb]"2+3"
+/E/ .hnd.h[`core.rdb](+;2;3)
+.hnd.oh:{[s]
+  if[not s in key .hnd.status;.hnd.hopen[s;100i;`eager]];
+  if[not `open~.hnd.status[s;`state];.hnd.hopen[s;100i;`eager]];
+  if[not `open~.hnd.status[s;`state];
+    if[(`$".hnd.rec.",.hnd.p.remdot s) in .tmr.status`fun;
+      '"Unable to open connection to ",(.Q.s1 s), ", reconnect timer is running"
+      ];
+    '"Process ",(.Q.s1 s)," is unknown"
+    ];
+  :.hnd.h[s]
+  };
+
 //----------------------------------------------------------------------------//
 /F/ Adds a callback function that will be executed just after connection opening.
 /-/ Callback can be removed using .hnd.poDel[]
