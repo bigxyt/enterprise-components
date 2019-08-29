@@ -142,7 +142,7 @@
 /P/ s:SYMBOL - server logical name
 /R/ :FUNCTION[1] | INT - exectutable `item` that should be used to execute the query
 /E/ .hnd.oh[`core.rdb]"2+3"
-/E/ .hnd.h[`core.rdb](+;2;3)
+/E/ .hnd.oh[`core.rdb](+;2;3)
 .hnd.oh:{[s]
   if[not s in key .hnd.status;.hnd.hopen[s;100i;`eager]];
   if[not `open~.hnd.status[s;`state];.hnd.hopen[s;100i;`eager]];

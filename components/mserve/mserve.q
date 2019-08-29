@@ -23,6 +23,13 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .sl.lib["cfgRdr/cfgRdr"];
 .sl.lib["qsl/handle"];
 
+/==============================================================================/
+/F/ switches the debug mode in runtime
+.mserv.setLogMode:{[level]
+  .z.ps:$[level~`DEBUG;.mserv.p.psDbg;.mserv.p.ps];
+  :level
+  };
+
 /F/ checks if the function name starts with given symbol, followed by _<digit>
 /P/ proc:SYMBOL - clone name (i.e. core.hdb_0)
 /P/ base:SYMBOL - base of the clone
@@ -55,7 +62,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .log.warn[`mserv]"Connection to ",(string id)," has been closed";
   .mserv.h:(enlist .mserv.p.activeSources[id]) _ .mserv.h;
   };
-  
+
 /F/ The overwrite for .z.ps
 .mserv.p.ps:{
   $[(w:neg .z.w)in key .mserv.h;
@@ -64,17 +71,26 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   ]
   };
 
-
-/F/ The overwrite for .z.ps, the debug version that shows asynchronous queries on the console
+/F/ The overwrite for .z.ps, the debug version that logs asynchronous queries on the console
 .mserv.p.psDbg:{
-  // DBG
-  show "query: ",.Q.s1 x;
-  $[(w:neg .z.w)in key .mserv.h;
-    [show "this is a server response";.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
-    [show "this is a client request";.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x);show "sent to handle ",(.Q.s1 a)," query ",.Q.s1 ("{(neg .z.w)@[value;x;`error]}";x);.dbg.lastQuery:("{(neg .z.w)@[value;x;`error]}";x)]
+  $[(w:neg .z.w) in key .mserv.h;
+    [ .log.info[`mserv]"Response message ",(.Q.s1 x)," from slave ",.mserv.p.getServer w;
+      .mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w
+    ];
+    [  a?:min a:count each .mserv.h;
+      .log.info[`mserv]"Client query ",(.Q.s1 x),", forwarding to slave ",.mserv.p.getServer a;
+      .mserv.h[a],:w;a("{(neg .z.w)@[value;x;`error]}";x)
+    ]
   ]
-  };
+ };
 
+ /F/ Get the slave name from handle, useful for debug messages
+ /P/ h:INT - the (negative handle)
+ /R/ :STRING - the server name as string.
+.mserv.p.getServer:{[h]
+  s:exec server from .hnd.status where ashandle ~\: h;
+  :$[1~count s;string first s;""]
+  };
 
 /==============================================================================/
 /F/ Main function for the mserve component.
@@ -91,7 +107,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .mserv.cfg.dataSources .hnd.poAdd\: `.mserv.p.sourcePo;
   .mserv.cfg.dataSources .hnd.pcAdd\: `.mserv.p.sourcePc;
   .hnd.hopen[.mserv.cfg.dataSources; 100i; `eager];
-  .z.ps:.mserv.p.ps;
+  .z.ps:$[.log.level~`DEBUG;.mserv.p.psDbg;.mserv.p.ps];
   };
 /G/ Path to the actual hdb directory.
 /------------------------------------------------------------------------------/

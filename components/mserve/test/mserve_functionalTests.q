@@ -25,7 +25,7 @@
   .test.start `t.client;
   .log.info[`tmserv]"services started";
   };
-  
+
 .tmserve.tearDown:{
   .test.stop `t.client;
   .test.stop `t.mserve;
@@ -33,9 +33,18 @@
   };
 
 
-.tmserve.test.case:{ 
+.tmserve.test.case:{
+  .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
+  .hnd.oh[`t.client]".msrvc.runTest[]";
   .assert.remoteWaitUntilEqual["all 5 services should be queried";`t.client;"asc .msrvc.results @\\: 0";til 5;1000;6000];
   };
-  
+
+.tmserve.test.withDbg:{
+  .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
+  .hnd.oh[`t.mserve]".mserv.setLogMode `DEBUG";
+  .hnd.oh[`t.client]".msrvc.runTest[]";
+  .assert.remoteWaitUntilEqual["all 5 services should be queried";`t.client;"asc .msrvc.results @\\: 0";til 5;1000;6000];
+  };
 
 
+.hnd.status[`t.mserve;`state]

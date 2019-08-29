@@ -28,8 +28,10 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 
 .msrvc.p.query:{[n] :({[n] t:.mockBack.query[n];:(`.msrvc.p.resCallback;t)};n) };
 
-.msrvc.p.mservPo:{[id]
-  .log.info[`msrvc]"Connection to ",(string id)," has been opened";
+.msrvc.p.mservPo:{[id].log.info[`msrvc]"Connection to ",(string id)," has been opened";};
+
+/F/ runs a test, setting the debug
+.msrvc.runTest:{
   // send 5 queries
   .hnd.ah[`t.mserve] each .msrvc.p.query each til 5;
   };
