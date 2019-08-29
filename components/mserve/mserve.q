@@ -65,6 +65,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 
 /F/ The overwrite for .z.ps
 .mserv.p.ps:{
+  if[0=.z.w;'"Queries coming from self are not supported by mserve"];
   $[(w:neg .z.w)in key .mserv.h;
     [.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
     [.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x)]
@@ -73,6 +74,9 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 
 /F/ The overwrite for .z.ps, the debug version that logs asynchronous queries on the console
 .mserv.p.psDbg:{
+  // do not allow requests coming from us, those start circulating between 
+  // mserve and slaves, filling the disk with logs
+  if[0=.z.w;'"Queries coming from self are not supported by mserve"];
   $[(w:neg .z.w) in key .mserv.h;
     [ .log.info[`mserv]"Response message ",(.Q.s1 x)," from slave ",.mserv.p.getServer w;
       .mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w
