@@ -74,7 +74,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 
 /F/ The overwrite for .z.ps, the debug version that logs asynchronous queries on the console
 .mserv.p.psDbg:{
-  // do not allow requests coming from us, those start circulating between 
+  // do not allow requests coming from us, those start circulating between
   // mserve and slaves, filling the disk with logs
   if[0=.z.w;'"Queries coming from self are not supported by mserve"];
   $[(w:neg .z.w) in key .mserv.h;
@@ -107,6 +107,9 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .mserv.cfg.dataSources:procs where procs .mserv.p.isCloneOf\: .cr.getCfgField[`THIS;`group;`cfg.dataSource];
   if[0~count .mserv.cfg.dataSources;
     .log.fatal[`mserv] "no clones of the data source ",(string .cr.getCfgField[`THIS;`group;`cfg.dataSource])," found"
+    ];
+  if[any `ASYNC_ACCESS_INFO in/: exec auditView from .cr.getCfgPivot[`THIS; `userGroup;`auditView];
+    .log.fatal[`mserv]"ASYNC_ACCESS_INFO value in auditView parameter in access.cfg cannot be used in mserve component, please remove"
     ];
   .mserv.cfg.dataSources .hnd.poAdd\: `.mserv.p.sourcePo;
   .mserv.cfg.dataSources .hnd.pcAdd\: `.mserv.p.sourcePc;
