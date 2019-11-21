@@ -1,0 +1,11 @@
+[group]
+  #/C/ data source name. The is the main part of the name of the service clones where the queries will be forwarded 
+  #/C/ (without the instance number suffix).
+  #/C/ For example if the system definition in system.cfg contains [[core.hdb:5]] then we can set this collection of clones
+  #/C/ as the backend for the mserve component with
+  #/E/ cfg.dataSource = core.hdb
+  cfg.dataSource = <type(SYMBOL)>
+[table]
+[sysTable]
+[user]
+[userGroup]

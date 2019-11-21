@@ -35,7 +35,7 @@ start hdbWriter process
 
 ### Simple usage example
 ```q
-q)/ execute on core.hdbWriter process 
+q)/ execute on core.hdbWriter process
 q)
 q)/ 1. insert the data
 q) .hdbw.insert[`trade;tradeChunk1];
@@ -57,7 +57,7 @@ Insert the data - as many chunks as you have, tradeChunk is expected to be:
 - or a list of columns
 
 ```q
-q)/ execute on core.hdbWriter process 
+q)/ execute on core.hdbWriter process
 q) .hdbw.insert[`trade;tradeChunk1];
 q) .hdbw.insert[`trade;tradeChunk2];
 q) .hdbw.insert[`quote;quoteChunk2];
@@ -65,18 +65,18 @@ q) .hdbw.insert[`quote;quoteChunk2];
 
 #### 2. data organization
 organize the data (this is mainly sorting)
- 
+
 ```q
-q)/ execute on core.hdbWriter process 
+q)/ execute on core.hdbWriter process
 q) .hdbw.organize[`ALL;`ALL];
 ```
 
 #### 3. manual data validation [optional]
-manually validate the data on the hdbWriter process, 
+manually validate the data on the hdbWriter process,
 inserted data is loaded into hdbWriter process in the global namespace
- 
+
 ```q
-q)/ execute on core.hdbWriter process 
+q)/ execute on core.hdbWriter process
 q) .tabs.status[`];
 tab   | format     | rowsCnt | err |  columns    
 ------+------------+---------+-----+---------------------------------------------
@@ -98,15 +98,15 @@ date       | x
  - archive old partitions from dstHdb
  - move to the dstHdb
  - reload dstHdb process
- 
+
 ```q
-q)/ execute on core.hdbWriter process 
+q)/ execute on core.hdbWriter process
 q) .hdbw.finalize[`ALL;`ALL];
 ```
 
 #### cleanup
  decide on the archive, delete if not required anymore
- 
+
  see {hdbWriter datapath}/archive/
 
 ### Implementation details
@@ -138,7 +138,7 @@ on `.hdbw.finalize`:
   - amended partition from `tmpHdb` is moved to the `dstHdb`
 
  important! - `hdbWriter` is never removing any records, it dones not check for duplicates - it is a responsibility of the user.
- 
+
 #### tmpHdb
 
  `hdbWriter` keeps only one tmpHdb

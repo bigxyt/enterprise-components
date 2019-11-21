@@ -24,7 +24,7 @@
 .testHandle.setUp:{
   .test.start `t0.proc1;
   };
-  
+
 .testHandle.tearDown:{
   .test.stop `t0.proc1;
   .test.stop `t0.proc2;
@@ -63,8 +63,8 @@
   .hnd.h[`t0.proc1]".hnd.hopen[`t0.proc2`t0.proc3;1000i;`eager]";
   .hnd.h[`t0.proc1]status:.hnd.h[`t0.proc1]".hnd.status";
   .assert.match["two failed processes";count where `failed=(0!.hnd.h[`t0.proc1]status)`state;2];
-  
-  // action 
+
+  // action
   .test.start `t0.proc2;
   .os.sleep 1000; // give time to notice
   //check
@@ -73,8 +73,8 @@
   .assert.match["one open process";count where `open=(0!.hnd.h[`t0.proc1]status)`state;1];
   .assert.match["port open has run once for process2";.hnd.h[`t0.proc1]".tst.hnd.Fun1Run";1];
   .assert.match["port open has not run for process3";.hnd.h[`t0.proc1]".tst.hnd.Fun2Run";0];
-  
-  // action 
+
+  // action
   .test.start `t0.proc3;
   .os.sleep 1000;
   //check
@@ -93,5 +93,22 @@
   .os.sleep 1000;
   .assert.match["port close has run once for process2";.hnd.h[`t0.proc1]".tst.hnd.Fun1Run";1];
   };
+
+.testHandle.test.oh:{
+  .test.start `t0.proc1;
+  .test.start `t0.proc2;
+  query:"\"2+3\"";
+  .assert.match[".hnd.oh opens connection if it is not open";.hnd.h[`t0.proc1]".hnd.oh[`t0.proc2]",query;5];
+  .test.stop `t0.proc2;
+  .assert.remoteFail[".hnd.oh fails when target process is not running";
+                    `t0.proc1;
+                    ".hnd.oh[`t0.proc2]",query;
+                    `$"Unable to open connection to `t0.proc2, reconnect timer is running"];
+  .assert.remoteFail[".hnd.oh fails when target process is not known";
+                    `t0.proc1;
+                    ".hnd.oh[`t0.proc4]",query;
+                    `$"Process `t0.proc4 is unknown"];
+  .test.stop `t0.proc1;
+ }
 
 //----------------------------------------------------------------------------//
