@@ -14,7 +14,7 @@
 
 /A/ Slawomir Kolodynski
 /V/ 1.0
-/S/ A test client process for testing .hnd.dh 
+/S/ A test client process for testing .hnd.Dh 
 
 system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .sl.init[`mservClient];

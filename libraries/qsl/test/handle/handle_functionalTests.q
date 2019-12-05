@@ -115,18 +115,19 @@
   .test.start `mock.backend1_0`mock.backend1_1`t.mserve1;
   .test.start `mock.backend2_0`mock.backend2_1`t.mserve2;
   .test.start `t.client;
-  .hnd.dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))];
-  .assert.match[".hnd.dh executes valid queries";
-              .hnd.h[`t.client]".hnd.dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
+  .hnd.Dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))];
+  .assert.match[".hnd.Dh executes valid queries";
+              .hnd.h[`t.client]".hnd.Dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
               (1 0;2 0)];
-  .assert.match[".hnd.dh expands hnd";
-              .hnd.h[`t.client]".hnd.dh[`t.mserve1;((`.mockBack.query;1);(`.mockBack.query;2))]";
-              (1 0;2 1)]; // mserve should send the first query to clone 0, second to clone 1
-  .assert.match[".hnd.dh expands query list to match server list";
-                .hnd.h[`t.client]".hnd.dh[`t.mserve1`t.mserve2;enlist (`.mockBack.query;1)]";
+  .assert.remoteFail[".hnd.Dh checks that servers are distinct ";
+              `t.client;
+              ".hnd.Dh[`t.mserve1`t.mserve1;((`.mockBack.query;1);(`.mockBack.query;2))]";
+              `$"non-distinct servers in the first parameter"];
+  .assert.match[".hnd.Dh expands query list to match server list";
+                .hnd.h[`t.client]".hnd.Dh[`t.mserve1`t.mserve2;enlist (`.mockBack.query;1)]";
                 (1 0;1 0)]; // dh should send the same query to both servers
-  .assert.match[".hnd.dh signals unknown servers";
-                .hnd.h[`t.client]".hnd.dh[`t.mserve`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
+  .assert.match[".hnd.Dh signals unknown servers";
+                .hnd.h[`t.client]".hnd.Dh[`t.mserve`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
                 ((`SIGNAL;"Process `t.mserve is unknown");2 0)]; // dh signals failure on unknown server
 
   .test.stop `t.client;

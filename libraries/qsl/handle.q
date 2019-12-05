@@ -154,20 +154,20 @@
     ];
   :.hnd.h[s]
   };
-  
+
 /F/ Executes a collection of asynchronous queries using delayed execution.
 /-/ This is useful for executing queries in parallel on collections of mserve processes.
 /P/ hnd:UNION[SYMBOL;LIST[SYMBOL]] - a server name or a list of logical server names
 /-/ If hnd is atom then all queries in the f parameter are sent to this server.
-/P/ f:LIST[LIST[ANY]] - a list of queries to be executed. 
+/P/ f:LIST[LIST[ANY]] - a list of queries to be executed.
 /-/ If the count of f is one, then the same query is executed on all servers
-/-/ provided in the parameter hnd. If the count of f is greater than one 
+/-/ provided in the parameter hnd. If the count of f is greater than one
 /-/ and hnd is a list, then the count of f has to be the same as the count of f.
 /R/ :LIST[ANY] - a list of results from the queries. Errors are indicated by
 /-/ pairs of the form (`SIGNAL;x) where x is the error description.
-.hnd.dh:{[hnd;f]
-  if[0>type hnd;hnd:(count f)#hnd];
-  if[(1<ch:count hnd) & 1~cf:count f;f:ch#f];
+.hnd.Dh:{[hnd;f]
+  if[not hnd~distinct hnd;'"non-distinct servers in the first parameter"];
+  if[(1<ch:count hnd) & 1~cf:count f;f:ch#f]; // but it can be the same query
   hnds:distinct hnd;
   statusMap:hnds!{@[.hnd.p.tryOpen;x;{(`SIGNAL;x)}]} each hnds;
   hndStatus:statusMap each hnd;
@@ -180,10 +180,10 @@
   :res
   };
 
-/F/ Checks the connection status of a server. Attempts to open it if 
+/F/ Checks the connection status of a server. Attempts to open it if
 /-/ it is not open.
 /P/ s:SYMBOL - the server name
-/R/ :SYMBOL - the `open symbol if the connection appears to be ok, a signal otherwise 
+/R/ :SYMBOL - the `open symbol if the connection appears to be ok, a signal otherwise
 .hnd.p.tryOpen:{[s]
   if[not s in key .hnd.status;.hnd.hopen[s;100i;`eager]];
   if[not `open~.hnd.status[s;`state];.hnd.hopen[s;100i;`eager]];
