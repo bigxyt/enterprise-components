@@ -26,6 +26,14 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   system "sleep 1";
   :(queryId;.mockBack.cfg.instance) 
   };
+  
+.mockBack.longQuery:{[queryId] 
+  system "sleep 10";
+  :(queryId;.mockBack.cfg.instance) 
+  };
+  
+.mockBack.exit:{[queryId]  exit 0};
+
 
 .sl.main:{[flags]
   .mockBack.cfg.instance:value .cr.getCfgField[`THIS;`group;`EC_COMPONENT_INSTANCE];

@@ -47,7 +47,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .mserv.p.activeSources:()!();
 
 /G/ dictionary that remembers the handles from which requests came that have been sent to the data source processes
-/-/ The key are (asynchronous) data source handles, the values are lists of originating handles.
+/-/ The key are (asynchronous) data source (slave) handles, the values are lists of originating (client) handles.
 .mserv.h:()!();
 
 /F/ The port open callback
@@ -60,7 +60,10 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /F/ The port close callback.
 .mserv.p.sourcePc:{[id]
   .log.warn[`mserv]"Connection to ",(string id)," has been closed";
-  .mserv.h:(enlist .mserv.p.activeSources[id]) _ .mserv.h;
+  // send back outstanding queries with signal
+  h:.mserv.p.activeSources[id]; // slave handle
+  if[h in key .mserv.h;{[h;client] client (`SIGNAL;"disconnected while processing query")}[h] each .mserv.h h];
+  .mserv.h:(enlist h) _ .mserv.h;
   };
 
 /F/ The overwrite for .z.ps
