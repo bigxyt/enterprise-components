@@ -190,6 +190,7 @@
   if[0>type hnd;isatom:1b;hnd,:();f:enlist f];
   if[not hnd~distinct hnd;'"non-distinct servers in the first parameter"];
   statusMap:hnd!{@[.hnd.p.tryOpen;x;{(`SIGNAL;x)}]} each hnd;
+  if[isatom & 0i~.hnd.h[first hnd];:$[10h~type q:first f;eval parse q;eval q]]; // query to self
   hndStatus:statusMap each hnd;
   open:where `open~/:hndStatus;
   unavailable:where not `open~/:hndStatus;
@@ -200,6 +201,7 @@
   if[0<count unavailable;res[unavailable]:hndStatus unavailable];
   :$[isatom;first res;res]
   };
+
 /F/ Checks the connection status of a server. Attempts to open it if
 /-/ it is not open.
 /P/ s:SYMBOL - the server name
