@@ -159,24 +159,24 @@
 /-/ This is similar to .hnd.Dh except that it does not have a limitation
 /-/ that servers have to be distinct.
 /P/ hnd:UNION[SYMBOL;LIST[SYMBOL]] - a server name or a list of server names
-/-/ If hnd is atom then all queries in the f parameter are sent to this server.
-/P/ f:LIST[LIST[ANY]] - a list of queries to be executed.
-/-/ If the count of f is one, then the same query is executed on all servers
-/-/ provided in the parameter hnd. If the count of f is greater than one
-/-/ and hnd is a list, then the count of f has to be the same as the count of f.
+/P/ f:UNION[LIST[ANY];LIST[LIST[ANY]] - a list of queries to be executed.
+/-/ If hnd is an atom then it is asumed that f is a single query.
+/-/ If hnd is a list of count 1, then all queries in the f parameter
+/-/ are sent to the single mserve instance in sequence
+/-/ (i.e. waiting for each query to return before sendig the next one.
+/-/ If the counts of f both hnd and f are greater than one,
+/-/ then the count of f has to be the same as the count of f.
 /R/ :LIST[ANY] - a list of results from the queries. Errors are indicated by
 /-/ pairs of the form (`SIGNAL;x) where x is the error description.
 .hnd.pexec:{[hnd;f]
-  if[0>type hnd;hnd:(count f)#hnd];
+  if[0>type hnd;:.hnd.Dh[hnd;f]];
+  if[(1~ch:count hnd) & 1<cf:count f;hnd:cf#hnd];
   if[(1<ch:count hnd) & 1~cf:count f;f:ch#f];
-  // split into sets with distinct servers
   t:update cnt:til count i by s from ([] s:hnd;q:f;row:til count hnd);
   qt:{[t;c] select s,q,row from t where cnt=c}[t] each distinct t`cnt;
-  // run .hnd.Dh on each set
   withRes:raze {update res:.hnd.Dh[s;q] from x} each qt;
-  // put back the original order and get result
-  exec res from `row xasc withRes
-  };
+  :exec res from `row xasc withRes;
+ };
 
 /F/ Executes a collection of asynchronous queries using deferred execution.
 /-/ This is useful for executing queries in parallel on collections of mserve processes.
@@ -186,6 +186,8 @@
 /R/ :LIST[ANY] - a list of results from the queries. Errors are indicated by
 /-/ pairs of the form (`SIGNAL;x) where x is the error description.
 .hnd.Dh:{[hnd;f]
+  isatom:0b;
+  if[0>type hnd;isatom:1b;hnd,:();f:enlist f];
   if[not hnd~distinct hnd;'"non-distinct servers in the first parameter"];
   statusMap:hnd!{@[.hnd.p.tryOpen;x;{(`SIGNAL;x)}]} each hnd;
   hndStatus:statusMap each hnd;
@@ -196,7 +198,7 @@
     {[h;f].hnd.ah[h]({[f](neg .z.w)@[value;f;{(`SIGNAL;x)}]};f);.hnd.ah[h][]}'[hnd open;f open];res[open]:{[h] .hnd.h[h][]} each hnd open;
     ];
   if[0<count unavailable;res[unavailable]:hndStatus unavailable];
-  :res
+  :$[isatom;first res;res]
   };
 /F/ Checks the connection status of a server. Attempts to open it if
 /-/ it is not open.

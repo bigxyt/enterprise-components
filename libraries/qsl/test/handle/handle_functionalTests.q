@@ -126,12 +126,15 @@
   .assert.match[".hnd.Dh signals unknown servers";
                 .hnd.h[`t.client]".hnd.Dh[`t.mserve`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
                 ((`SIGNAL;"Process `t.mserve is unknown");2 0)]; // dh signals failure on unknown server
+  .assert.match[".hnd.Dh works with first parameter being an atom";
+                .hnd.h[`t.client]".hnd.Dh[`t.mserve1;(`.mockBack.query;1)]";
+                (1 0)];
 
   .assert.match[".hnd.pexec supports repeating servers";
                 .hnd.h[`t.client]".hnd.pexec[`t.mserve1`t.mserve2`t.mserve1`t.mserve1`t.mserve2;((`.mockBack.query;0);(`.mockBack.query;1);(`.mockBack.query;2);(`.mockBack.query;3);(`.mockBack.query;4))]";
                 (0 0;1 0;2 0;3 0;4 0)];
   .assert.match[".hnd.pexec expands single server";
-                .hnd.h[`t.client]".hnd.pexec[`t.mserve1;((`.mockBack.query;0);(`.mockBack.query;1);(`.mockBack.query;2);(`.mockBack.query;3);(`.mockBack.query;4))]";
+                .hnd.h[`t.client]".hnd.pexec[enlist `t.mserve1;((`.mockBack.query;0);(`.mockBack.query;1);(`.mockBack.query;2);(`.mockBack.query;3);(`.mockBack.query;4))]";
                 (0 0;1 0;2 0;3 0;4 0)];
   .assert.match[".hnd.pexec expands query list to match server list";
                 .hnd.h[`t.client]".hnd.pexec[`t.mserve1`t.mserve2;enlist (`.mockBack.query;1)]";
@@ -139,6 +142,9 @@
   .assert.match[".hnd.pexec signals unknown server";
                 .hnd.h[`t.client]".hnd.pexec[`t.mserve1`t.mserve`t.mserve1`t.mserve1`t.mserve2;((`.mockBack.query;0);(`.mockBack.query;1);(`.mockBack.query;2);(`.mockBack.query;3);(`.mockBack.query;4))]";
                 (0 0;(`SIGNAL;"Process `t.mserve is unknown");2 0;3 0;4 0)];
+  .assert.match[".hnd.pexec works with first parameter being an atom";
+               .hnd.h[`t.client]".hnd.pexec[`t.mserve1;(`.mockBack.query;1)]";
+                (1 0)];
 
   .test.stop `t.client;
   .test.stop `mock.backend2_0`mock.backend2_1`t.mserve2;
