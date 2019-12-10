@@ -115,7 +115,6 @@
   .test.start `mock.backend1_0`mock.backend1_1`t.mserve1;
   .test.start `mock.backend2_0`mock.backend2_1`t.mserve2;
   .test.start `t.client;
-  .hnd.Dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))];
   .assert.match[".hnd.Dh executes valid queries";
               .hnd.h[`t.client]".hnd.Dh[`t.mserve1`t.mserve2;((`.mockBack.query;1);(`.mockBack.query;2))]";
               (1 0;2 0)];
@@ -132,6 +131,9 @@
   .assert.match[".hnd.Dh can query locally ";
                 .hnd.h[`t.client]".hnd.Dh[`t.client;enlist \"2\"]";
                 2];
+  .assert.match[".hnd.Dh catches local errors ";
+                .hnd.h[`t.client]".hnd.Dh[`t.client;\"2+`a\"]";
+                (`SIGNAL;"type")];
 
   .assert.match[".hnd.pexec supports repeating servers";
                 .hnd.h[`t.client]".hnd.pexec[`t.mserve1`t.mserve2`t.mserve1`t.mserve1`t.mserve2;((`.mockBack.query;0);(`.mockBack.query;1);(`.mockBack.query;2);(`.mockBack.query;3);(`.mockBack.query;4))]";
@@ -148,10 +150,9 @@
   .assert.match[".hnd.pexec works with first parameter being an atom";
                .hnd.h[`t.client]".hnd.pexec[`t.mserve1;(`.mockBack.query;1)]";
                 (1 0)];
-
   .test.stop `t.client;
-  .test.stop `mock.backend2_0`mock.backend2_1`t.mserve2;
-  .test.stop `mock.backend1_0`mock.backend1_1`t.mserve1;
+  .test.stop `mock.backend2_0`mock.backend2_1`t.mserve2`t.mserve1;
+  .test.stop `mock.backend1_0`mock.backend1_1;
   };
 
 //----------------------------------------------------------------------------//

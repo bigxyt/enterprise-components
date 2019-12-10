@@ -190,13 +190,15 @@
   if[0>type hnd;isatom:1b;hnd,:();f:enlist f];
   if[not hnd~distinct hnd;'"non-distinct servers in the first parameter"];
   statusMap:hnd!{@[.hnd.p.tryOpen;x;{(`SIGNAL;x)}]} each hnd;
-  if[isatom & 0i~.hnd.h[first hnd];:$[10h~type q:first f;eval parse q;eval q]]; // query to self
+  if[isatom & 0i~.hnd.h[first hnd]; // query to self
+    :@[eval;$[10h~type q:first f;parse q;q];{(`SIGNAL;x)}]
+    ];
   hndStatus:statusMap each hnd;
   open:where `open~/:hndStatus;
   unavailable:where not `open~/:hndStatus;
   res:(count hnd)#enlist ();
   if[0<count open;
-    {[h;f].hnd.ah[h]({[f](neg .z.w)@[value;f;{(`SIGNAL;x)}]};f);.hnd.ah[h][]}'[hnd open;f open];res[open]:{[h] .hnd.h[h][]} each hnd open;
+    {[h;f].hnd.ah[h]({[f](neg .z.w)@[value;f;{(`SIGNAL;x)}]};f);.hnd.ah[h][]}'[hnd open;f open];res[open]:{[h] @[.hnd.h[h];(::);{(`SIGNAL;x)}]} each hnd open;
     ];
   if[0<count unavailable;res[unavailable]:hndStatus unavailable];
   :$[isatom;first res;res]
