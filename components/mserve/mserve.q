@@ -50,6 +50,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /-/ The key are (asynchronous) data source (slave) handles, the values are lists of originating (client) handles.
 .mserv.h:()!();
 
+
 /F/ The port open callback
 .mserv.p.sourcePo:{[id]
   .log.info[`mserv]"Connection to ",(string id)," has been opened";
@@ -57,23 +58,35 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .mserv.h[.hnd.status[id;`ashandle]]:();
   };
 
+
 /F/ The port close callback.
 .mserv.p.sourcePc:{[id]
   .log.warn[`mserv]"Connection to ",(string id)," has been closed";
   // send back outstanding queries with signal
   h:.mserv.p.activeSources[id]; // slave handle
-  if[h in key .mserv.h;{[h;client] client (`SIGNAL;"disconnected while processing query")}[h] each .mserv.h h];
+  if[h in key .mserv.h;{[h;client] client (`SIGNAL;"disconnected while processing query")}[h] each .mserv.h[h][;0]];
   .mserv.h:(enlist h) _ .mserv.h;
   };
+
+.mserv.p.pc:{[h]
+  if[(w:neg[h]) in raze[.mserv.h][;0];
+    .log.info[`mserv] "Client with handle ", string[h], " has been disconnected. State of this handle is invalid";
+    keyid:where any each w in/: value[.mserv.h][;;0];
+    a:where each w in/:/:.mserv.h[key[.mserv.h][keyid]][;;0];
+    {[keyid;hndid].mserv.h[key[.mserv.h][keyid];hndid;1]:`invalid}'[keyid;a];
+  ]
+  };
+
 
 /F/ The overwrite for .z.ps
 .mserv.p.ps:{
   if[0=.z.w;'"Queries coming from self are not supported by mserve"];
   $[(w:neg .z.w)in key .mserv.h;
-    [.mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w];
-    [.mserv.h[a?:min a:count each .mserv.h],:w;a("{(neg .z.w)@[value;x;`error]}";x)]
+    [.mserv.p.farwardMsg2Client[w;x]];
+    [.mserv.h[a?:min a:count each .mserv.h],:enlist(w;`valid);a("{(neg .z.w)@[value;x;`error]}";x)]
   ]
   };
+
 
 /F/ The overwrite for .z.ps, the debug version that logs asynchronous queries on the console
 .mserv.p.psDbg:{
@@ -81,15 +94,40 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   // mserve and slaves, filling the disk with logs
   if[0=.z.w;'"Queries coming from self are not supported by mserve"];
   $[(w:neg .z.w) in key .mserv.h;
-    [ .log.info[`mserv]"Response message ",(.Q.s1 x)," from slave ",.mserv.p.getServer w;
-      .mserv.h[w;0]x;.mserv.h[w]:1_.mserv.h w
+    [ .log.info[`mserv]"Response message ",(.Q.s1 x)," from slave ",.mserv.p.getServer[w];
+       .mserv.p.farwardMsg2ClientDbg[w;x]
     ];
     [  a?:min a:count each .mserv.h;
-      .log.info[`mserv]"Client query ",(.Q.s1 x),", forwarding to slave ",.mserv.p.getServer a;
-      .mserv.h[a],:w;a("{(neg .z.w)@[value;x;`error]}";x)
+      .log.info[`mserv]"Client's handle:",string[.z.w], " query ",(.Q.s1 x),", forwarding to slave ",.mserv.p.getServer[a];
+      .log.info[`mserv]"Set client's handle:",string[.z.w], " status to valid";
+      .mserv.h[a],:enlist(w;`valid);
+      a("{(neg .z.w)@[value;x;`error]}";x)
     ]
   ]
  };
+
+.mserv.p.farwardMsg2ClientDbg:{[w;msg]
+  if[`valid~.mserv.h[w;0][1];
+    .log.info[`mserv]"Client's handle:",string[abs .mserv.h[w][0;0]]," is valid and message will be farwarded";
+    .mserv.h[w;0;0]msg;.mserv.h[w]:1_.mserv.h w;
+    :();
+    ];
+  if[`invalid~.mserv.h[w;0][1];
+    .log.info[`mserv]"Client's handle:",string[abs .mserv.h[w][0;0]]," is invalid and will be dropped from the message queue";
+    .mserv.h[w]:1_.mserv.h w;
+    ];
+  };
+
+.mserv.p.farwardMsg2Client:{[w;msg]
+  if[`valid~.mserv.h[w;0][1];
+    .mserv.h[w;0;0]msg;.mserv.h[w]:1_.mserv.h w;
+    :();
+    ];
+  if[`invalid~.mserv.h[w;0][1];
+    .mserv.h[w]:1_.mserv.h w;
+    ];
+  };
+
 
  /F/ Get the slave name from handle, useful for debug messages
  /P/ h:INT - the (negative handle)
@@ -116,6 +154,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
     ];
   .mserv.cfg.dataSources .hnd.poAdd\: `.mserv.p.sourcePo;
   .mserv.cfg.dataSources .hnd.pcAdd\: `.mserv.p.sourcePc;
+  .cb.add[`.z.pc;`.mserv.p.pc];
   .hnd.hopen[.mserv.cfg.dataSources; 100i; `eager];
   .z.ps:$[.log.level~`DEBUG;.mserv.p.psDbg;.mserv.p.ps];
   };
@@ -123,3 +162,6 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /------------------------------------------------------------------------------/
 //initialization
 .sl.run[`mserv;`.sl.main;`];
+
+
+

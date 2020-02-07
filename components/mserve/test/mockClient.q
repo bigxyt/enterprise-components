@@ -29,6 +29,12 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .msrvc.p.query:{[n] :({[n] t:.mockBack.query[n];:(`.msrvc.p.resCallback;t)};n) };
 
 .msrvc.p.mservPo:{[id].log.info[`msrvc]"Connection to ",(string id)," has been opened";};
+.msrvc.runLongQuery:{
+  // send 5 queries
+  .hnd.ah[`t.mserve] each .msrvc.p.longQuery each til 1;
+  };
+
+.msrvc.p.longQuery:{[n] :({[n] t:.mockBack.longQuery[n];:(`.msrvc.p.resCallback;t)};n) };
 
 /F/ runs a test, setting the debug
 .msrvc.runTest:{
