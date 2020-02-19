@@ -26,7 +26,7 @@
   .log.info[`tmserv]"services started";
   };
 
-  
+
 .tmserve.tearDown:{
   .test.stop `t.client;
   .test.stop `t.mserve;
@@ -35,7 +35,7 @@
 
 .tmserve.test.case0:{
   .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
-  .hnd.oh[`t.client]".msrvc.runTest[]";
+  .hnd.oh[`t.client]".msrvc.runTest[5]";
   .assert.remoteWaitUntilEqual["all 5 services should be queried";`t.client;"asc .msrvc.results @\\: 0";til 5;1000;10000];
   };
 
@@ -49,33 +49,28 @@
 .tmserve.test.case2:{
   .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
   .hnd.oh[`t.mserve]".mserv.setLogMode `DEBUG";
-  .hnd.oh[`t.client]".msrvc.runLongQuery[]"; 
+  .hnd.oh[`t.client]".msrvc.runLongQuery[1]";
   .hnd.oh[`t.client]".hnd.hclose[`t.mserve]";
   .assert.remoteWaitUntilEqual["messege should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
   .assert.match["query will not return to the client";.hnd.oh[`t.client]".msrvc.results"; ()];
   .hnd.oh[`t.client]".hnd.hopen[`t.mserve;100i;`eager]";
-  .hnd.oh[`t.client]".msrvc.runTest[]";
-  .assert.remoteWaitUntilEqual["messege should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
+  .hnd.oh[`t.client]".msrvc.runTest[5]";
+  .assert.remoteWaitUntilEqual["message should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
   .assert.remoteWaitUntilEqual["all 5 services should be queried";`t.client;"asc .msrvc.results @\\: 0";til 5;1000;6000];
   };
 
 
 .tmserve.test.case3:{
   .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
-  .hnd.oh[`t.client]".msrvc.runLongQuery[]"; 
+  .hnd.oh[`t.client]".msrvc.runLongQuery[1]";
   .hnd.oh[`t.client]".hnd.hclose[`t.mserve]";
-  .assert.remoteWaitUntilEqual["messege should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
+  .assert.remoteWaitUntilEqual["message should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
 
   };
 
 .tmserve.test.withDbg:{
   .assert.remoteWaitUntilEqual["client should connect to mserve ";`t.client;".hnd.status[`t.mserve;`state]";`open;100;1000];
   .hnd.oh[`t.mserve]".mserv.setLogMode `DEBUG";
-  .hnd.oh[`t.client]".msrvc.runTest[]";
+  .hnd.oh[`t.client]".msrvc.runTest[5]";
   .assert.remoteWaitUntilEqual["all 5 services should be queried";`t.client;"asc .msrvc.results @\\: 0";til 5;1000;6000];
   };
-
-
-
-
-

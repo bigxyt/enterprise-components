@@ -26,6 +26,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /==============================================================================/
 /F/ switches the debug mode in runtime
 .mserv.setLogMode:{[level]
+  .log.info[`mserv]"Setting log mode to ",.Q.s1 level;
   .z.ps:$[level~`DEBUG;.mserv.p.psDbg;.mserv.p.ps];
   :level
   };
@@ -162,6 +163,3 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /------------------------------------------------------------------------------/
 //initialization
 .sl.run[`mserv;`.sl.main;`];
-
-
-

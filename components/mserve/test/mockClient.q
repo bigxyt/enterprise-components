@@ -29,17 +29,21 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .msrvc.p.query:{[n] :({[n] t:.mockBack.query[n];:(`.msrvc.p.resCallback;t)};n) };
 
 .msrvc.p.mservPo:{[id].log.info[`msrvc]"Connection to ",(string id)," has been opened";};
-.msrvc.runLongQuery:{
-  // send 5 queries
-  .hnd.ah[`t.mserve] each .msrvc.p.longQuery each til 1;
+
+/F/ sends a specified number of long queries to mserve
+/P/ n:LONG - nmber of queries 
+.msrvc.runLongQuery:{[n]
+  // send n long queries
+  .hnd.ah[`t.mserve] each .msrvc.p.longQuery each til n;
   };
 
 .msrvc.p.longQuery:{[n] :({[n] t:.mockBack.longQuery[n];:(`.msrvc.p.resCallback;t)};n) };
 
 /F/ runs a test, setting the debug
-.msrvc.runTest:{
-  // send 5 queries
-  .hnd.ah[`t.mserve] each .msrvc.p.query each til 5;
+/P/ n:LONG - nmber of queries 
+.msrvc.runTest:{[n]
+  // send n queries
+  .hnd.ah[`t.mserve] each .msrvc.p.query each til n;
   };
 
 .sl.main:{[flags]
