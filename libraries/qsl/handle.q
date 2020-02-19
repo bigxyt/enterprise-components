@@ -398,7 +398,7 @@
   connstr:dxcsp[.hnd.status[s;`connstr]];
   h:.pe.at[hopen;(connstr;.hnd.status[s;`timeout]);.hnd.p.errHlazy[s]];
   sh:$[.hnd.p.isLocahost connstr;h;.hnd.p.rh[s;h]];
-  .hnd.status[s;`handle`ashandle`rawHandle`topen`state]:(sh;neg h;h.sl.zp[];`open); //we don't get here if err
+  .hnd.status[s;`handle`ashandle`rawHandle`topen`state]:(sh;neg h;.sl.zp[];`open); //we don't get here if err
   .hnd.po[.hnd.p.cb  s] @\: s; // run callbacks
   (neg h) q;
   };
