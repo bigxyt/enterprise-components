@@ -32,6 +32,12 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   :(queryId;.mockBack.cfg.instance) 
   };
   
+.mockBack.veryLongQuery:{[queryId] 
+  system "sleep 100";
+  :(queryId;.mockBack.cfg.instance) 
+  };
+
+  
 .mockBack.exit:{[queryId]  exit 0};
 
 

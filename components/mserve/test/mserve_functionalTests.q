@@ -51,7 +51,7 @@
   .hnd.oh[`t.mserve]".mserv.setLogMode `DEBUG";
   .hnd.oh[`t.client]".msrvc.runLongQuery[1]";
   .hnd.oh[`t.client]".hnd.hclose[`t.mserve]";
-  .assert.remoteWaitUntilEqual["messege should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
+  .assert.remoteWaitUntilEqual["message should be dropped from queue on mserve ";`t.mserve;"all 0 in/: count each .mserv.h ";1b;100;15000];
   .assert.match["query will not return to the client";.hnd.oh[`t.client]".msrvc.results"; ()];
   .hnd.oh[`t.client]".hnd.hopen[`t.mserve;100i;`eager]";
   .hnd.oh[`t.client]".msrvc.runTest[5]";

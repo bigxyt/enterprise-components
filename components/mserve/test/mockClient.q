@@ -20,8 +20,8 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .sl.init[`mservClient];
 
 
-.sl.lib["cfgRdr/cfgRdr"]; / check which are necessary 
-.sl.lib["qsl/handle"]; 
+.sl.lib["cfgRdr/cfgRdr"]; / check which are necessary
+.sl.lib["qsl/handle"];
 
 .msrvc.results:();
 .msrvc.p.resCallback:{ [res] .msrvc.results,:enlist res; };
@@ -31,16 +31,25 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .msrvc.p.mservPo:{[id].log.info[`msrvc]"Connection to ",(string id)," has been opened";};
 
 /F/ sends a specified number of long queries to mserve
-/P/ n:LONG - nmber of queries 
+/P/ n:LONG - nmber of queries
 .msrvc.runLongQuery:{[n]
   // send n long queries
   .hnd.ah[`t.mserve] each .msrvc.p.longQuery each til n;
   };
 
+/F/ sends a specified number of very long queries to mserve
+/P/ n:LONG - nmber of queries
+.msrvc.runVeryLongQuery:{[n]
+  // send n very long queries
+  .hnd.ah[`t.mserve] each .msrvc.p.veryLongQuery each til n;
+  };
+
 .msrvc.p.longQuery:{[n] :({[n] t:.mockBack.longQuery[n];:(`.msrvc.p.resCallback;t)};n) };
 
+.msrvc.p.veryLongQuery:{[n] :({[n] t:.mockBack.veryLongQuery[n];:(`.msrvc.p.resCallback;t)};n) };
+
 /F/ runs a test, setting the debug
-/P/ n:LONG - nmber of queries 
+/P/ n:LONG - nmber of queries
 .msrvc.runTest:{[n]
   // send n queries
   .hnd.ah[`t.mserve] each .msrvc.p.query each til n;
@@ -50,5 +59,5 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   .hnd.poAdd[`t.mserve;.msrvc.p.mservPo];
   .hnd.hopen[`t.mserve;100i;`eager];
   };
-  
+
 .sl.run[`mservClient;`.sl.main;`];

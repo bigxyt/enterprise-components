@@ -5,6 +5,12 @@
   #/C/ as the backend for the mserve component with
   #/E/ cfg.dataSource = core.hdb
   cfg.dataSource = <type(SYMBOL)>
+  
+  #/C/ Period for timer for killing slaves in ms. Sometimes slaves shoud be restarted so that the memory gets refreshed. 
+  #/C/ If this period is not 0 the .mserv.refresh function is run on timer with frequency defined by this parameter. 
+  #/C/ This function marks a slave for query flush or sends the "exit 0" command (asynchronously) when the query queue is empty 
+  #/C/ to kill the slave. Restart of the slave has to be done by an external monitoring process.
+  cfg.refreshPeriod = <type(INT),default(0)>
 [table]
 [sysTable]
 [user]
