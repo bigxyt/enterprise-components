@@ -45,9 +45,9 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .hdb.reload:{[]
   .event.at[`hdb;`.hdb.p.reload;();`;`info`info`fatal;"hdb reloading, hdb dir:", system"cd"];
   };
-  
+
 /------------------------------------------------------------------------------/
-/F/ Fills missing tables in all hdb partitions. 
+/F/ Fills missing tables in all hdb partitions.
 /-/ Implementation based on .Q.chk[] q native function.
 /R/ no return value
 /E/ .hdb.fillMissingTabs[]
@@ -87,7 +87,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /------------------------------------------------------------------------------/
 /F/ Returns status of all partitioned tables in the hdb
 /R/ Table with one row for each partition, and with one dedicated column for each table.
-/-/  -- date:DATE           - partition 
+/-/  -- date:DATE           - partition
 /-/  -- parDir:SYMBOL       - partition directory
 /-/  -- [tabName]:LONG      - Count of the table within the partition. One column for each partitioned table.
 /E/ .hdb.statusByPar[]
@@ -97,7 +97,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   };
 
 /------------------------------------------------------------------------------/
-/F/ Retrieves statistics about the data volumes in hdb. Statistics are based on hourly aggregation. 
+/F/ Retrieves statistics about the data volumes in hdb. Statistics are based on hourly aggregation.
 /-/ - If there is a "time" column, it will be used for the aggregation.
 /-/ - If there is no "time" column in the table, then the statistics will be calculated per whole day (not per hour).
 /P/ tab:SYMBOL - name of the table in hdb for requested statistics
@@ -140,11 +140,31 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   : `hdbDate`hour`table xcols ([] table:enlist tab; totalRowsCnt:enlist `long$cnt; minRowsPerSec:enlist 0Nj; avgRowsPerSec:enlist 0Nj; medRowsPerSec:enlist 0Nj; maxRowsPerSec:enlist 0Nj; hdbDate:enlist day; hour:enlist 0Nt; dailyMedRowsPerSec:enlist 0Nj);
   };
 
+
+/F/ warms up teh data base by doing a query that gets counts for all tabs on the latest daily
+/-/ This speeds up the subsequent queries
+/-/ :FLOAT - estimated speedup, good if > 1
+.hdb.p.warmup:{[]
+  .log.info[`hdb]"warming up the data base";
+  start:.z.p;
+  tabs:tables[] where {`date in cols x} each tables[];
+  counts:{[d;tab] first exec c from select c:count i from tab where date=d}[last date] each tabs;
+  duration:`long$.z.p-start;
+  .log.info[`hdb]"Warmup took ",(string `long$duration%1000000)," ms.";
+  start1:.z.p;
+  counts:{[d;tab] first exec c from select c:count i from tab where date=d}[last date] each tabs;
+  :duration%`long$.z.p-start
+  };
+
 /------------------------------------------------------------------------------/
 /F/ initialization and reload
 .hdb.p.init:{[]
   system "cd ",1_string .hdb.cfg.hdbPath;
   .hdb.reload[];
+  if[.hdb.cfg.warmup;
+    speedup:.hdb.p.warmup[];
+    .log.info[`hdb]"estimated speed up factor ",string speedup;
+    ];
   };
 
 /==============================================================================/
@@ -155,6 +175,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .sl.main:{[flags]
   /G/ Path to the actual hdb directory.
   .hdb.cfg.hdbPath:.cr.getCfgField[`THIS;`group;`cfg.hdbPath];
+  .hdb.cfg.warmup:.cr.getCfgField[`THIS;`group;`cfg.warmup];
 
   .sl.libCmd[];
 
@@ -166,4 +187,3 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 .sl.run[`hdb;`.sl.main;`];
 
 /------------------------------------------------------------------------------/
-\
