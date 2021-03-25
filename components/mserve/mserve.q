@@ -115,7 +115,8 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 	if[0=.z.w;'"Queries coming from self are not supported by mserve"];
 	$[(w:neg .z.w)in key .mserv.h;
 		[.mserv.p.forwardMsg2Client[w;x]];
-		[.mserv.h[a?:min a:count each .mserv.da _ .mserv.h],:enlist(w;`valid);a("{(neg .z.w)@[value;x;`error]}";x)]
+		[ if[0~count .mserv.da _ .mserv.h;(neg .z.w)(`SIGNAL;"no database instances available");:(::)];
+      .mserv.h[a?:min a:count each .mserv.da _ .mserv.h],:enlist(w;`valid);a("{(neg .z.w)@[value;x;`error]}";x)]
 	 ]
 	};
 
@@ -128,7 +129,11 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 		[ .log.info[`mserv]"Response message ",(.Q.s1 x)," from slave ",.mserv.p.getServer[w];
 			 .mserv.p.forwardMsg2ClientDbg[w;x]
 		];
-		[ a?:min a:count each .mserv.da _ .mserv.h; // exclude deactivated slaves from sending
+		[ if[0~count .mserv.da _ .mserv.h;
+        .log.warn[`mserv]"Query received while no slaves are active";
+        (neg .z.w)(`SIGNAL;"no database instances available");:(::)
+        ];
+      a?:min a:count each .mserv.da _ .mserv.h; // exclude deactivated slaves from sending
 			.log.info[`mserv]"Client's handle:",string[.z.w], " query ",(.Q.s1 x),", forwarding to slave ",.mserv.p.getServer[a];
 			.log.info[`mserv]"Set client's handle:",string[.z.w], " status to valid";
 			.mserv.h[a],:enlist(w;`valid);
@@ -190,7 +195,8 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 	refrPer:.cr.getCfgField[`THIS;`group;`cfg.refreshPeriod];
 	if[0<refrPer;.tmr.start[`.mserv.refresh;refrPer;`.mserv.refresh]];
 	};
-/G/ Path to the actual hdb directory.
+
 /------------------------------------------------------------------------------/
 //initialization
 .sl.run[`mserv;`.sl.main;`];
+
