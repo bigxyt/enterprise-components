@@ -7,6 +7,13 @@
   #/-/ Setting TRUE causes to do a query at the initialization that takes some time (1-3 minutes) but may speed up subsequent queries
   #/E/ cfg.warmup = TRUE
   cfg.warmup = <type(BOOLEAN), default(FALSE)>
+
+  #/C/ option that controls running the .Q.bv function on the hdb load (see https://code.kx.com/q/ref/dotq/#qchk-fill-hdb) 
+  #/-/ Possible values are FIRST, LAST and NONE. When FIRST is specified .Q.bv[`] is run, when LAST is specified .Q.bv[] is run
+  #/-/ When NONE is specified (or any value other than FIRST or LAST) .Q.bv is not run.
+  #/E/ cfg.qbv = LAST
+  cfg.qbv = <type(SYMBOL), default(NONE)>
+
   
 [table]
 [sysTable]

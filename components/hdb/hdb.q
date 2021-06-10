@@ -31,6 +31,8 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
 /------------------------------------------------------------------------------/
 .hdb.p.reload:{[]
   system "l .";
+  if[.hdb.cfg.qbv~`LAST;.Q.bv[]];
+  if[.hdb.cfg.qbv~`FIRST;.Q.bv[`]];
   };
 
 /------------------------------------------------------------------------------/
@@ -176,6 +178,7 @@ system"l ",getenv[`EC_QSL_PATH],"/sl.q";
   /G/ Path to the actual hdb directory.
   .hdb.cfg.hdbPath:.cr.getCfgField[`THIS;`group;`cfg.hdbPath];
   .hdb.cfg.warmup:.cr.getCfgField[`THIS;`group;`cfg.warmup];
+  .hdb.cfg.qbv:.cr.getCfgField[`THIS;`group;`cfg.qbv];
 
   .sl.libCmd[];
 
